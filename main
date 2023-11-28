@@ -1,0 +1,67 @@
+import psutil
+import subprocess
+import time
+import logging
+
+# Constants
+SLEEP = 1
+
+# Logging
+logging.basicConfig(level=logging.INFO, filename="E:\\logs\\py_log.log", filemode="w")
+logging.debug("A DEBUG Message")
+logging.info("An INFO")
+logging.warning("A WARNING")
+logging.error("An ERROR")
+logging.critical("A message of CRITICAL severity")
+
+
+def get_network_interfaces():
+    return set(psutil.net_if_stats().keys())
+
+
+def disable_ethernet_interface():
+    interface_name = "Ethernet"
+    command = f"netsh interface set interface name=\"{interface_name}\" admin=DISABLE"
+    execute_command(command)
+
+
+def enable_ethernet_interface():
+    interface_name = "Ethernet"
+    command = f"netsh interface set interface name=\"{interface_name}\" admin=ENABLE"
+    execute_command(command)
+
+
+def execute_command(command):
+    try:
+        subprocess.run(command, check=True, shell=True)
+        logging.info("Command completed")
+        print("Command completed")
+    except subprocess.CalledProcessError:
+        logging.error("An error occurred while running the command")
+        print("An error occurred while running the command")
+
+
+def main():
+    while True:
+        logging.debug(get_network_interfaces())
+        print(get_network_interfaces())
+
+        if 'Ethernet 2' in get_network_interfaces():
+            print("Detected interface Ethernet2! Disable local network")
+            logging.info("Detected interface Ethernet2! Disable local network")
+            disable_ethernet_interface()
+        elif 'Ethernet 3' in get_network_interfaces():
+            print("Detected interface Ethernet 3! Disable local network")
+            logging.info("Detected interface Ethernet 3! Disable local network")
+            disable_ethernet_interface()
+        else:
+            print("Enable local Ethernet")
+            logging.info("Enable local Ethernet")
+            enable_ethernet_interface()
+
+        time.sleep(SLEEP)
+
+
+if __name__ == "__main__":
+    time.sleep(10)
+    main()
